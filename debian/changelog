@@ -1,3 +1,10 @@
+moxa-uart-control (1.1.2+deb9) unstable; urgency=low
+
+  * Fix issue for attempting to free static array
+  * Add error message
+
+ -- Ken CJ Chou <KenCJ.Chou@moxa.com>  Fri, 13 Apr 2018 16:32:00 +0800
+
 moxa-uart-control (1.1.1+deb9) stretch; urgency=low
 
   * Support uart mode gpio pins in config file
