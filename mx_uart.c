@@ -394,7 +394,8 @@ static int set_uart_mode_gpio(int port, int mode)
 		if (ret < 0)
 			return ret;
 	}
-	free(uart_modes_values);
+	if (uart_modes_values != def_uart_modes_values[mode])
+		free(uart_modes_values);
 	return E_SUCCESS;
 }
 
@@ -445,7 +446,9 @@ static int get_uart_mode_gpio(int port, int *mode)
 			*mode = i;
 			return E_SUCCESS;
 		}
-		free(uart_modes_values);
+
+		if (uart_modes_values != def_uart_modes_values[i])
+			free(uart_modes_values);
 	}
 
 	sprintf(mx_errmsg, "Unknown UART mode");
