@@ -38,9 +38,9 @@ extern char mx_errmsg[256];
 void usage(FILE *fp)
 {
 	fprintf(fp, "Usage:\n");
-	fprintf(fp, "	mx-uart-ctl -p <#port-number> -m <#uart_mode>\n\n");
+	fprintf(fp, "	mx-uart-ctl -p <#port_number> -m <#uart_mode>\n\n");
 	fprintf(fp, "OPTIONS:\n");
-	fprintf(fp, "	-p <#device-node>\n");
+	fprintf(fp, "	-p <#port_number>\n");
 	fprintf(fp, "		Set target port: [0..]\n");
 	fprintf(fp, "	-m <#uart_mode>\n");
 	fprintf(fp, "		Set target port to uart_mode\n");
