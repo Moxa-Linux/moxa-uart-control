@@ -90,6 +90,8 @@ void do_action(struct action_struct action)
 			fprintf(stderr, "%s\n", mx_errmsg);
 			exit(1);
 		}
+		printf("Set OK.\n");
+
 		if (mx_uart_get_mode(action.port, &action.mode) < 0) {
 			fprintf(stderr, "%s\n", mx_errmsg);
 			exit(1);
