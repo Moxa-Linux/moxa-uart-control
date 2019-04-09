@@ -1,0 +1,3 @@
+#!/usr/bin/dh-exec
+mx_uart.h /usr/include/moxa/
+mx_uart.a /usr/lib/${DEB_HOST_MULTIARCH}/

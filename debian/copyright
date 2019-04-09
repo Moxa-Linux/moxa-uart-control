@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: moxa-uart-control
-Source: http://gitlab.syssw.moxa.com:8888/MXcore-Package/moxa-uart-control
+Source: http://gitlab.syssw.moxa.com/MXcore-Package/moxa-uart-control
 
 Files: *
 Copyright: 2017 MXcore
@@ -8,6 +8,7 @@ License:   Apache-2.0
 
 Files: debian/*
 Copyright: 2017 Elvis CW Yao <ElvisCW.Yao@moxa.com>
+           2018 Ken CJ Chou <KenCJ.Chou@moxa.com>
 License:   Apache-2.0
 
 License:   Apache-2.0

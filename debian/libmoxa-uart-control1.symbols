@@ -1,0 +1,16 @@
+libmx_uart_ctl.so.1 libmoxa-uart-control1 #MINVER#
+ mx_uart_init@Base 1.1.0
+ mx_uart_get_mode@Base 1.1.0
+ mx_uart_set_mode@Base 1.1.0
+ mx_uart_open@Base 1.1.0
+ mx_uart_close@Base 1.1.0
+ mx_uart_read@Base 1.1.0
+ mx_uart_write@Base 1.1.0
+ mx_uart_set_baudrate@Base 1.1.0
+ mx_uart_set_databits@Base 1.1.0
+ mx_uart_set_stopbits@Base 1.1.0
+ mx_uart_set_parity@Base 1.1.0
+ mx_uart_get_baudrate@Base 1.1.0
+ mx_uart_get_databits@Base 1.1.0
+ mx_uart_get_stopbits@Base 1.1.0
+ mx_uart_get_parity@Base 1.1.0

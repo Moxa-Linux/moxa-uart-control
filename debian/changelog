@@ -1,3 +1,11 @@
+moxa-uart-control (1.1.0+deb9) unstable; urgency=low
+
+  * Remove old version of mx-uart-ctl utility code.
+  * Add new mx_uart library codes and new mx-uart-ctl utility code.
+  * Redefine deb packaging
+
+ -- Ken CJ Chou <KenCJ.Chou@moxa.com>  Sat, 24 Feb 2018 14:30:00 +0800
+
 moxa-uart-control (1.0.0+deb9) stretch; urgency=low
 
   [ Elvis CW Yao ]
@@ -9,3 +17,4 @@ moxa-uart-control (1.0.0+deb9) stretch; urgency=low
   * Add uploader
 
  -- SZ Lin (林上智) <szlin@debian.org>  Sat, 23 Dec 2017 14:54:21 +0800
+
