@@ -1,16 +1,33 @@
-#CC=arm-linux-gnueabihf-gcc
-EXEC=mx-uart-ctl
+LIB_NAME = mx_uart
+SO_NAME = libmx_uart_ctl.so
+V_MAJOR = 1
+V_MINOR = 1
+V_REVISION = 1
+VER_CODE = $(V_MAJOR).$(V_MINOR).$(V_REVISION)
 
-CFLAGS += -I.
+CROSS_COMPILE =
+CC := $(CROSS_COMPILE)gcc
+STRIP := $(CROSS_COMPILE)strip
+CFLAGS =
+LDFLAGS =
 
-all: $(EXEC).c
+all:
+	$(CC) $(CFLAGS) $(LDFLAGS) -Wall -fPIC -c -o $(LIB_NAME).o $(LIB_NAME).c
 
-$(EXEC).c:	$(EXEC).o
-	$(CC) $(LDFLAGS) $(EXEC).o -o $(EXEC) -ljson-c
-	$(STRIP) -s $(EXEC)
+	# static library
+	ar rcs $(LIB_NAME).a $(LIB_NAME).o
+	$(STRIP) -s $(LIB_NAME).a
 
-$(EXEC).o:
-	$(CC) $(LDFLAGS) $(CFLAGS) -c $(EXEC).c
+	# shared library
+	$(CC) $(CFLAGS) $(LDFLAGS) -ljson-c -lmx_gpio_ctl -shared -Wl,-soname,$(SO_NAME).$(V_MAJOR) -o $(SO_NAME).$(VER_CODE) $(LIB_NAME).o
+	$(STRIP) -s $(SO_NAME).$(VER_CODE)
+	ln -sf $(SO_NAME).$(VER_CODE) $(SO_NAME).$(V_MAJOR)
+	ln -sf $(SO_NAME).$(V_MAJOR) $(SO_NAME)
 
-clean distclean:
-	-rm -fr $(EXEC) $(EXEC).o
+	# utility
+	$(CC) $(CFLAGS) $(LDFLAGS) -Wall -L. -lmx_uart_ctl -o mx-uart-ctl mx-uart-ctl.c
+	$(STRIP) -s mx-uart-ctl
+
+.PHONY: clean	
+clean:
+	rm -f *.o *.a $(SO_NAME)* mx-uart-ctl
