@@ -1,0 +1,11 @@
+moxa-uart-control (1.0.0+deb9) stretch; urgency=low
+
+  [ Elvis CW Yao ]
+  * Initial release.
+
+  [ SZ Lin (林上智) ]
+  * Fix lintian errors
+  * Move source code
+  * Add uploader
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Sat, 23 Dec 2017 14:54:21 +0800
