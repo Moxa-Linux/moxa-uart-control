@@ -1,3 +1,9 @@
+moxa-uart-control (1.1.1+deb9) stretch; urgency=low
+
+  * Support uart mode gpio pins in config file
+
+ -- Ken CJ Chou <KenCJ.Chou@moxa.com>  Thu, 12 Apr 2018 21:39:00 +0800
+
 moxa-uart-control (1.1.0+deb9) unstable; urgency=low
 
   * Remove old version of mx-uart-ctl utility code.
