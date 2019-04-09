@@ -394,7 +394,8 @@ static int set_uart_mode_gpio(int port, int mode)
 		if (ret < 0)
 			return ret;
 	}
-	free(uart_modes_values);
+	if (uart_modes_values != def_uart_modes_values[mode])
+		free(uart_modes_values);
 	return E_SUCCESS;
 }
 
@@ -445,7 +446,9 @@ static int get_uart_mode_gpio(int port, int *mode)
 			*mode = i;
 			return E_SUCCESS;
 		}
-		free(uart_modes_values);
+
+		if (uart_modes_values != def_uart_modes_values[i])
+			free(uart_modes_values);
 	}
 
 	sprintf(mx_errmsg, "Unknown UART mode");
@@ -540,12 +543,16 @@ int mx_uart_set_mode(int port, int mode)
 	if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
 		return E_CONFERR;
 
-	if (port < 0 || port >= num_of_uart_ports)
+	if (port < 0 || port >= num_of_uart_ports) {
+		sprintf(mx_errmsg, "UART port out of index: %d", port);
 		return E_INVAL;
+	}
 
 	if (mode != UART_MODE_RS232 && mode != UART_MODE_RS485_2W
-		&& mode != UART_MODE_RS422_RS485_4W)
+		&& mode != UART_MODE_RS422_RS485_4W) {
+		sprintf(mx_errmsg, "Unknown mode: %d", mode);
 		return E_INVAL;
+	}
 
 	if (obj_get_str(config, "METHOD", &method) < 0)
 		return E_CONFERR;
