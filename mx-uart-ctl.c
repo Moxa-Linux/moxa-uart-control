@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "mx_uart.h"
@@ -37,9 +38,9 @@ extern char mx_errmsg[256];
 void usage(FILE *fp)
 {
 	fprintf(fp, "Usage:\n");
-	fprintf(fp, "	mx-uart-ctl -p <#port-number> -m <#uart_mode>\n\n");
+	fprintf(fp, "	mx-uart-ctl -p <#port_number> -m <#uart_mode>\n\n");
 	fprintf(fp, "OPTIONS:\n");
-	fprintf(fp, "	-p <#device-node>\n");
+	fprintf(fp, "	-p <#port_number>\n");
 	fprintf(fp, "		Set target port: [0..]\n");
 	fprintf(fp, "	-m <#uart_mode>\n");
 	fprintf(fp, "		Set target port to uart_mode\n");
@@ -53,6 +54,23 @@ void usage(FILE *fp)
 	fprintf(fp, "\n");
 	fprintf(fp, "	Set port 1 to mode RS232\n");
 	fprintf(fp, "	# mx-uart-ctl -p 1 -m 0\n");
+}
+
+int my_atoi(const char *nptr, int *number)
+{
+	int tmp;
+
+	tmp = atoi(nptr);
+	if (tmp != 0) {
+		*number = tmp;
+		return 0;
+	} else {
+		if (!strcmp(nptr, "0")) {
+			*number = 0;
+			return 0;
+		}
+	}
+	return -1;
 }
 
 void show_uart_mode_message(int mode)
@@ -90,6 +108,8 @@ void do_action(struct action_struct action)
 			fprintf(stderr, "%s\n", mx_errmsg);
 			exit(1);
 		}
+		printf("Set OK.\n");
+
 		if (mx_uart_get_mode(action.port, &action.mode) < 0) {
 			fprintf(stderr, "%s\n", mx_errmsg);
 			exit(1);
@@ -119,11 +139,17 @@ int main(int argc, char *argv[])
 			usage(stdout);
 			exit(0);
 		case 'p':
-			action.port = atoi(argv[optind - 1]);
+			if (my_atoi(optarg, &action.port) != 0) {
+				fprintf(stderr, "%s is not a number\n", optarg);
+				exit(1);
+			}
 			break;
 		case 'm':
 			action.type = SET_MODE;
-			action.mode = atoi(argv[optind - 1]);
+			if (my_atoi(optarg, &action.mode) != 0) {
+				fprintf(stderr, "%s is not a number\n", optarg);
+				exit(1);
+			}
 			break;
 		default:
 			usage(stderr);

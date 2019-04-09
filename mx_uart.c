@@ -550,7 +550,7 @@ int mx_uart_set_mode(int port, int mode)
 
 	if (mode != UART_MODE_RS232 && mode != UART_MODE_RS485_2W
 		&& mode != UART_MODE_RS422_RS485_4W) {
-		sprintf(mx_errmsg, "Unknown mode: %d", mode);
+		sprintf(mx_errmsg, "Try to set unknown mode: %d", mode);
 		return E_INVAL;
 	}
 
