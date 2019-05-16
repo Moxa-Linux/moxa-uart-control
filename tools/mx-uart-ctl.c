@@ -17,8 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "mx_uart.h"
+#include <mx_uart.h>
 
 #define UNSET -1
 
