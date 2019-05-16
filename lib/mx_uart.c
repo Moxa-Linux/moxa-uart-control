@@ -83,7 +83,6 @@ static struct baudtab_struct baudrate_table[] = {
 	{ 921600, B921600 },
 };
 static int baudtab_size = sizeof(baudrate_table) / sizeof(baudrate_table[0]);
-extern char mx_errmsg[256];
 
 /*
  * json-c utilities
@@ -91,10 +90,8 @@ extern char mx_errmsg[256];
 
 static inline int obj_get_obj(struct json_object *obj, char *key, struct json_object **val)
 {
-	if (!json_object_object_get_ex(obj, key, val)) {
-		sprintf(mx_errmsg, "json-c: can\'t get key: \"%s\"", key);
+	if (!json_object_object_get_ex(obj, key, val))
 		return -1;
-	}
 	return 0;
 }
 
@@ -133,10 +130,8 @@ static int obj_get_arr(struct json_object *obj, char *key, struct array_list **v
 
 static int arr_get_obj(struct array_list *arr, int idx, struct json_object **val)
 {
-	if (arr == NULL || idx >= arr->length) {
-		sprintf(mx_errmsg, "json-c: can\'t get index: %d", idx);
+	if (arr == NULL || idx >= arr->length)
 		return -1;
-	}
 
 	*val = array_list_get_idx(arr, idx);
 	return 0;
@@ -183,20 +178,14 @@ static int check_config_version_supported(const char *conf_ver)
 {
 	int cv[2], sv[2];
 
-	if (sscanf(conf_ver, "%d.%d.%*s", &cv[0], &cv[1]) < 0) {
-		sprintf(mx_errmsg, "sscanf: %s: %s", conf_ver, strerror(errno));
+	if (sscanf(conf_ver, "%d.%d.%*s", &cv[0], &cv[1]) < 0)
 		return -1; /* E_SYSFUNCERR */
-	}
 
-	if (sscanf(CONF_VER_SUPPORTED, "%d.%d.%*s", &sv[0], &sv[1]) < 0) {
-		sprintf(mx_errmsg, "sscanf: %s: %s", CONF_VER_SUPPORTED, strerror(errno));
+	if (sscanf(CONF_VER_SUPPORTED, "%d.%d.%*s", &sv[0], &sv[1]) < 0)
 		return -1; /* E_SYSFUNCERR */
-	}
 
-	if (cv[0] != sv[0] || cv[1] != sv[1]) {
-		sprintf(mx_errmsg, "Config version not supported, need to be %s", CONF_VER_SUPPORTED);
+	if (cv[0] != sv[0] || cv[1] != sv[1])
 		return -4; /* E_UNSUPCONFVER */
-	}
 	return 0;
 }
 
@@ -224,14 +213,11 @@ static int get_uart_mode_ioctl(int port, int *mode)
 		return ret;
 
 	fd = open(ttyname, O_RDWR|O_NONBLOCK);
-	if (fd < 0) {
-		sprintf(mx_errmsg, "open %s: %s", ttyname, strerror(errno));
+	if (fd < 0)
 		return -1; /* E_SYSFUNCERR */
-	}
 
 	serial.reserved_char[0] = 0;
 	if (ioctl(fd, TIOCGSERIAL, &serial) < 0) {
-		sprintf(mx_errmsg, "ioctl: TIOCGSERIAL: %s", strerror(errno));
 		close(fd);
 		return -1; /* E_SYSFUNCERR */
 	}
@@ -252,20 +238,16 @@ static int set_uart_mode_ioctl(int port, int mode)
 		return ret;
 
 	fd = open(ttyname, O_RDWR|O_NONBLOCK);
-	if (fd < 0) {
-		sprintf(mx_errmsg, "open %s: %s", ttyname, strerror(errno));
+	if (fd < 0)
 		return -1; /* E_SYSFUNCERR */
-	}
 
 	if (ioctl(fd, TIOCGSERIAL, &serial) < 0) {
-		sprintf(mx_errmsg, "ioctl: TIOCGSERIAL: %s", strerror(errno));
 		close(fd);
 		return -1; /* E_SYSFUNCERR */
 	}
 
 	serial.port = mode;
 	if (ioctl(fd, TIOCSSERIAL, &serial) < 0) {
-		sprintf(mx_errmsg, "ioctl: TIOCSSERIAL: %s", strerror(errno));
 		close(fd);
 		return -1; /* E_SYSFUNCERR */
 	}
@@ -333,10 +315,8 @@ static int get_uart_modes(int mode, int **uart_modes_values)
 		return -5; /* E_CONFERR */
 
 	tmp_uart_modes_values = (int *) malloc(num_of_gpio_pins * sizeof(int));
-	if (tmp_uart_modes_values == NULL) {
-		sprintf(mx_errmsg, "malloc: %s", strerror(errno));
+	if (tmp_uart_modes_values == NULL)
 		return -1; /* E_SYSFUNCERR */
-	}
 
 	if (arr_get_arr(uart_modes, mode, &uart_mode_pins) < 0)
 		return -5; /* E_CONFERR */
@@ -418,10 +398,8 @@ static int get_uart_mode_gpio(int port, int *mode)
 		return -5; /* E_CONFERR */
 
 	gpio_values = (int *) malloc(num_of_gpio_pins * sizeof(int));
-	if (gpio_values == NULL) {
-		sprintf(mx_errmsg, "malloc: %s", strerror(errno));
+	if (gpio_values == NULL)
 		return -1; /* E_SYSFUNCERR */
-	}
 
 	for (i = 0; i < num_of_gpio_pins; i++) {
 		if (arr_get_int(gpio_nums, i, &gpio_num) < 0)
@@ -449,7 +427,6 @@ static int get_uart_mode_gpio(int port, int *mode)
 			free(uart_modes_values);
 	}
 
-	sprintf(mx_errmsg, "Unknown UART mode");
 	return -52; /* E_UART_UNKMODE */
 }
 
@@ -464,10 +441,8 @@ static int get_uart_mode_gpio_ioctl(int port, int *mode)
 	if (ret < 0)
 		return ret;
 
-	if (mode_from_gpio != mode_from_ioctl) {
-		sprintf(mx_errmsg, "GPIO and IOCTL are incompatible");
+	if (mode_from_gpio != mode_from_ioctl)
 		return -51; /* E_UART_GPIOIOCTLINCOMP */
-	}
 
 	*mode = mode_from_gpio;
 	return 0;
@@ -516,10 +491,8 @@ int mx_uart_init(void)
 
 	uart_ports = (struct uart_port_struct *)
 		malloc(num_of_uart_ports * sizeof(struct uart_port_struct));
-	if (uart_ports == NULL) {
-		sprintf(mx_errmsg, "malloc: %s", strerror(errno));
+	if (uart_ports == NULL)
 		return -1; /* E_SYSFUNCERR */
-	}
 
 	for (i = 0; i < num_of_uart_ports; i++)
 		uart_ports[i].is_opened = 0;
@@ -533,24 +506,18 @@ int mx_uart_set_mode(int port, int mode)
 	int num_of_uart_ports;
 	const char *method;
 
-	if (!lib_initialized) {
-		sprintf(mx_errmsg, "Library is not initialized");
+	if (!lib_initialized)
 		return -3; /* E_LIBNOTINIT */
-	}
 
 	if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
 		return -5; /* E_CONFERR */
 
-	if (port < 0 || port >= num_of_uart_ports) {
-		sprintf(mx_errmsg, "UART port out of index: %d", port);
+	if (port < 0 || port >= num_of_uart_ports)
 		return -2; /* E_INVAL */
-	}
 
 	if (mode != UART_MODE_RS232 && mode != UART_MODE_RS485_2W
-		&& mode != UART_MODE_RS422_RS485_4W) {
-		sprintf(mx_errmsg, "Try to set unknown mode: %d", mode);
+		&& mode != UART_MODE_RS422_RS485_4W)
 		return -2; /* E_INVAL */
-	}
 
 	if (obj_get_str(config, "METHOD", &method) < 0)
 		return -5; /* E_CONFERR */
@@ -570,18 +537,14 @@ int mx_uart_get_mode(int port, int *mode)
 	int num_of_uart_ports;
 	const char *method;
 
-	if (!lib_initialized) {
-		sprintf(mx_errmsg, "Library is not initialized");
+	if (!lib_initialized)
 		return -3; /* E_LIBNOTINIT */
-	}
 
 	if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
 		return -5; /* E_CONFERR */
 
-	if (port < 0 || port >= num_of_uart_ports) {
-		sprintf(mx_errmsg, "UART port out of index: %d", port);
+	if (port < 0 || port >= num_of_uart_ports)
 		return -2; /* E_INVAL */
-	}
 
 	if (obj_get_str(config, "METHOD", &method) < 0)
 		return -5; /* E_CONFERR */
@@ -602,18 +565,14 @@ int mx_uart_open(int port)
 	const char *ttyname;
 	int ret, num_of_uart_ports;
 
-	if (!lib_initialized) {
-		sprintf(mx_errmsg, "Library is not initialized");
+	if (!lib_initialized)
 		return -3; /* E_LIBNOTINIT */
-	}
 
 	if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
 		return -5; /* E_CONFERR */
 
-	if (port < 0 || port >= num_of_uart_ports) {
-		sprintf(mx_errmsg, "UART port out of index: %d", port);
+	if (port < 0 || port >= num_of_uart_ports)
 		return -2; /* E_INVAL */
-	}
 
 	if (uart_ports[port].is_opened == 1)
 		return 0;
@@ -623,10 +582,8 @@ int mx_uart_open(int port)
 		return ret;
 
 	uart_ports[port].fd = open(ttyname, O_RDWR|O_NOCTTY);
-	if (uart_ports[port].fd < 0) {
-		sprintf(mx_errmsg, "open %s: %s", ttyname, strerror(errno));
+	if (uart_ports[port].fd < 0)
 		return -1; /* E_SYSFUNCERR */
-	}
 	flock(uart_ports[port].fd, LOCK_EX);
 
 	tcflush(uart_ports[port].fd, TCIOFLUSH);
@@ -647,18 +604,14 @@ int mx_uart_close(int port)
 {
 	int num_of_uart_ports;
 
-	if (!lib_initialized) {
-		sprintf(mx_errmsg, "Library is not initialized");
+	if (!lib_initialized)
 		return -3; /* E_LIBNOTINIT */
-	}
 
 	if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
 		return -5; /* E_CONFERR */
 
-	if (port < 0 || port >= num_of_uart_ports) {
-		sprintf(mx_errmsg, "UART port out of index: %d", port);
+	if (port < 0 || port >= num_of_uart_ports)
 		return -2; /* E_INVAL */
-	}
 
 	if (uart_ports[port].is_opened == 0)
 		return 0;
@@ -672,23 +625,17 @@ int mx_uart_read(int port, char *data, size_t count)
 {
 	int num_of_uart_ports;
 
-	if (!lib_initialized) {
-		sprintf(mx_errmsg, "Library is not initialized");
+	if (!lib_initialized)
 		return -3; /* E_LIBNOTINIT */
-	}
 
 	if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
 		return -5; /* E_CONFERR */
 
-	if (port < 0 || port >= num_of_uart_ports) {
-		sprintf(mx_errmsg, "UART port out of index: %d", port);
+	if (port < 0 || port >= num_of_uart_ports)
 		return -2; /* E_INVAL */
-	}
 
-	if (uart_ports[port].is_opened == 0) {
-		sprintf(mx_errmsg, "UART port %d is not opened", port);
+	if (uart_ports[port].is_opened == 0)
 		return -50; /* E_UART_NOTOPEN */
-	}
 
 	return read(uart_ports[port].fd, data, count);
 }
@@ -697,23 +644,17 @@ int mx_uart_write(int port, char *data, size_t count)
 {
 	int num_of_uart_ports;
 
-	if (!lib_initialized) {
-		sprintf(mx_errmsg, "Library is not initialized");
+	if (!lib_initialized)
 		return -3; /* E_LIBNOTINIT */
-	}
 
 	if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
 		return -5; /* E_CONFERR */
 
-	if (port < 0 || port >= num_of_uart_ports) {
-		sprintf(mx_errmsg, "UART port out of index: %d", port);
+	if (port < 0 || port >= num_of_uart_ports)
 		return -2; /* E_INVAL */
-	}
 
-	if (uart_ports[port].is_opened == 0) {
-		sprintf(mx_errmsg, "UART port %d is not opened", port);
+	if (uart_ports[port].is_opened == 0)
 		return -50; /* E_UART_NOTOPEN */
-	}
 
 	return write(uart_ports[port].fd, data, count);
 }
@@ -723,44 +664,34 @@ int mx_uart_set_baudrate(int port, int baudrate)
 	struct termios termios;
 	int i, num_of_uart_ports;
 
-	if (!lib_initialized) {
-		sprintf(mx_errmsg, "Library is not initialized");
+	if (!lib_initialized)
 		return -3; /* E_LIBNOTINIT */
-	}
 
 	if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
 		return -5; /* E_CONFERR */
 
-	if (port < 0 || port >= num_of_uart_ports) {
-		sprintf(mx_errmsg, "UART port out of index: %d", port);
+	if (port < 0 || port >= num_of_uart_ports)
 		return -2; /* E_INVAL */
-	}
 
 	/* check and setup configuration */
-	if (tcgetattr(uart_ports[port].fd, &termios)) {
-		sprintf(mx_errmsg, "tcgetattr: %s", strerror(errno));
+	if (tcgetattr(uart_ports[port].fd, &termios))
 		return -1; /* E_SYSFUNCERR */
-	}
 
 	/* check if the speed is one of the well-known baud rates */
 	for (i = 0; i < baudtab_size; i++) {
 		if (baudrate_table[i].baudrate == baudrate) {
 			termios.c_cflag &= ~(CBAUD | CBAUDEX);
 			termios.c_cflag |= baudrate_table[i].index;
-			if (tcsetattr(uart_ports[port].fd, TCSANOW, &termios)) {
-				sprintf(mx_errmsg, "tcsetattr: %s", strerror(errno));
+			if (tcsetattr(uart_ports[port].fd, TCSANOW, &termios))
 				return -1; /* E_SYSFUNCERR */
-			}
 			return 0;
 		}
 	}
 
 	/* a rate not one of them defined in the table */
 	termios.c_cflag |= B4000000;
-	if (ioctl(uart_ports[port].fd, UC_SET_SPECIAL_BAUD_RATE, &baudrate)) {
-		sprintf(mx_errmsg, "ioctl: UC_SET_SPECIAL_BAUD_RATE: %s", strerror(errno));
+	if (ioctl(uart_ports[port].fd, UC_SET_SPECIAL_BAUD_RATE, &baudrate))
 		return -1; /* E_SYSFUNCERR */
-	}
 	return 0;
 }
 
@@ -769,24 +700,18 @@ int mx_uart_get_baudrate(int port, int *baudrate)
 	struct termios termios;
 	int i, index, num_of_uart_ports;
 
-	if (!lib_initialized) {
-		sprintf(mx_errmsg, "Library is not initialized");
+	if (!lib_initialized)
 		return -3; /* E_LIBNOTINIT */
-	}
 
 	if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
 		return -5; /* E_CONFERR */
 
-	if (port < 0 || port >= num_of_uart_ports) {
-		sprintf(mx_errmsg, "UART port out of index: %d", port);
+	if (port < 0 || port >= num_of_uart_ports)
 		return -2; /* E_INVAL */
-	}
 
 	/* check and setup configuration */
-	if (tcgetattr(uart_ports[port].fd, &termios)) {
-		sprintf(mx_errmsg, "tcgetattr: %s", strerror(errno));
+	if (tcgetattr(uart_ports[port].fd, &termios))
 		return -1; /* E_SYSFUNCERR */
-	}
 
 	/* match one in the table */
 	index = termios.c_cflag & CBAUD;
@@ -797,10 +722,8 @@ int mx_uart_get_baudrate(int port, int *baudrate)
 		}
 	}
 
-	if (ioctl(uart_ports[port].fd, UC_GET_SPECIAL_BAUD_RATE, baudrate) != 0) {
-		sprintf(mx_errmsg, "ioctl: UC_GET_SPECIAL_BAUD_RATE: %s", strerror(errno));
+	if (ioctl(uart_ports[port].fd, UC_GET_SPECIAL_BAUD_RATE, baudrate) != 0)
 		return -1; /* E_SYSFUNCERR */
-	}
 	return 0;
 }
 
@@ -809,23 +732,17 @@ int mx_uart_set_databits(int port, int bits)
 	struct termios termios;
 	int num_of_uart_ports;
 
-	if (!lib_initialized) {
-		sprintf(mx_errmsg, "Library is not initialized");
+	if (!lib_initialized)
 		return -3; /* E_LIBNOTINIT */
-	}
 
 	if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
 		return -5; /* E_CONFERR */
 
-	if (port < 0 || port >= num_of_uart_ports) {
-		sprintf(mx_errmsg, "UART port out of index: %d", port);
+	if (port < 0 || port >= num_of_uart_ports)
 		return -2; /* E_INVAL */
-	}
 
-	if (tcgetattr(uart_ports[port].fd, &termios)) {
-		sprintf(mx_errmsg, "tcgetattr: %s", strerror(errno));
+	if (tcgetattr(uart_ports[port].fd, &termios))
 		return -1; /* E_SYSFUNCERR */
-	}
 
 	termios.c_cflag &= ~CSIZE;
 	if (bits == 5)
@@ -837,10 +754,8 @@ int mx_uart_set_databits(int port, int bits)
 	else
 		termios.c_cflag |= CS8;
 
-	if (tcsetattr(uart_ports[port].fd, TCSANOW, &termios)) {
-		sprintf(mx_errmsg, "tcsetattr: %s", strerror(errno));
+	if (tcsetattr(uart_ports[port].fd, TCSANOW, &termios))
 		return -1; /* E_SYSFUNCERR */
-	}
 	return 0;
 }
 
@@ -850,23 +765,17 @@ int mx_uart_get_databits(int port, int *bits)
 	struct termios termios;
 	int num_of_uart_ports;
 
-	if (!lib_initialized) {
-		sprintf(mx_errmsg, "Library is not initialized");
+	if (!lib_initialized)
 		return -3; /* E_LIBNOTINIT */
-	}
 
 	if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
 		return -5; /* E_CONFERR */
 
-	if (port < 0 || port >= num_of_uart_ports) {
-		sprintf(mx_errmsg, "UART port out of index: %d", port);
+	if (port < 0 || port >= num_of_uart_ports)
 		return -2; /* E_INVAL */
-	}
 
-	if (tcgetattr(uart_ports[port].fd, &termios)) {
-		sprintf(mx_errmsg, "tcgetattr: %s", strerror(errno));
+	if (tcgetattr(uart_ports[port].fd, &termios))
 		return -1; /* E_SYSFUNCERR */
-	}
 
 	flag = termios.c_cflag & CSIZE;
 
@@ -887,33 +796,25 @@ int mx_uart_set_stopbits(int port, int bits)
 	struct termios termios;
 	int num_of_uart_ports;
 
-	if (!lib_initialized) {
-		sprintf(mx_errmsg, "Library is not initialized");
+	if (!lib_initialized)
 		return -3; /* E_LIBNOTINIT */
-	}
 
 	if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
 		return -5; /* E_CONFERR */
 
-	if (port < 0 || port >= num_of_uart_ports) {
-		sprintf(mx_errmsg, "UART port out of index: %d", port);
+	if (port < 0 || port >= num_of_uart_ports)
 		return -2; /* E_INVAL */
-	}
 
-	if (tcgetattr(uart_ports[port].fd, &termios)) {
-		sprintf(mx_errmsg, "tcgetattr: %s", strerror(errno));
+	if (tcgetattr(uart_ports[port].fd, &termios))
 		return -1; /* E_SYSFUNCERR */
-	}
 
 	if (bits == 2)
 		termios.c_cflag |= CSTOPB;
 	else
 		termios.c_cflag &= ~CSTOPB;
 
-	if (tcsetattr(uart_ports[port].fd, TCSANOW, &termios)) {
-		sprintf(mx_errmsg, "tcsetattr: %s", strerror(errno));
+	if (tcsetattr(uart_ports[port].fd, TCSANOW, &termios))
 		return -1; /* E_SYSFUNCERR */
-	}
 	return 0;
 }
 
@@ -922,24 +823,18 @@ int mx_uart_get_stopbits(int port, int *bits)
 	struct termios termios;
 	int num_of_uart_ports;
 
-	if (!lib_initialized) {
-		sprintf(mx_errmsg, "Library is not initialized");
+	if (!lib_initialized)
 		return -3; /* E_LIBNOTINIT */
-	}
 
 	if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
 		return -5; /* E_CONFERR */
 
-	if (port < 0 || port >= num_of_uart_ports) {
-		sprintf(mx_errmsg, "UART port out of index: %d", port);
+	if (port < 0 || port >= num_of_uart_ports)
 		return -2; /* E_INVAL */
-	}
 
 	/* check and setup configuration */
-	if (tcgetattr(uart_ports[port].fd, &termios)) {
-		sprintf(mx_errmsg, "tcgetattr: %s", strerror(errno));
+	if (tcgetattr(uart_ports[port].fd, &termios))
 		return -1; /* E_SYSFUNCERR */
-	}
 
 	if (termios.c_cflag & CSTOPB)
 		*bits = 2;
@@ -954,24 +849,18 @@ int mx_uart_set_parity(int port, int parity)
 	struct termios termios;
 	int num_of_uart_ports;
 
-	if (!lib_initialized) {
-		sprintf(mx_errmsg, "Library is not initialized");
+	if (!lib_initialized)
 		return -3; /* E_LIBNOTINIT */
-	}
 
 	if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
 		return -5; /* E_CONFERR */
 
-	if (port < 0 || port >= num_of_uart_ports) {
-		sprintf(mx_errmsg, "UART port out of index: %d", port);
+	if (port < 0 || port >= num_of_uart_ports)
 		return -2; /* E_INVAL */
-	}
 
 	/* check and setup configuration */
-	if (tcgetattr(uart_ports[port].fd, &termios)) {
-		sprintf(mx_errmsg, "tcgetattr: %s", strerror(errno));
+	if (tcgetattr(uart_ports[port].fd, &termios))
 		return -1; /* E_SYSFUNCERR */
-	}
 
 	termios.c_cflag &= ~(PARENB|PARODD|CMSPAR);
 
@@ -984,10 +873,8 @@ int mx_uart_set_parity(int port, int parity)
 	else if (parity == MSP_PARITY_MARK)
 		termios.c_cflag |= (PARENB|CMSPAR|PARODD);
 
-	if (tcsetattr(uart_ports[port].fd, TCSANOW, &termios)) {
-		sprintf(mx_errmsg, "tcsetattr: %s", strerror(errno));
+	if (tcsetattr(uart_ports[port].fd, TCSANOW, &termios))
 		return -1; /* E_SYSFUNCERR */
-	}
 	return 0;
 }
 
@@ -996,24 +883,18 @@ int mx_uart_get_parity(int port, int *parity)
 	struct termios termios;
 	int num_of_uart_ports;
 
-	if (!lib_initialized) {
-		sprintf(mx_errmsg, "Library is not initialized");
+	if (!lib_initialized)
 		return -3; /* E_LIBNOTINIT */
-	}
 
 	if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
 		return -5; /* E_CONFERR */
 
-	if (port < 0 || port >= num_of_uart_ports) {
-		sprintf(mx_errmsg, "UART port out of index: %d", port);
+	if (port < 0 || port >= num_of_uart_ports)
 		return -2; /* E_INVAL */
-	}
 
 	/* check and setup configuration */
-	if (tcgetattr(uart_ports[port].fd, &termios)) {
-		sprintf(mx_errmsg, "tcgetattr: %s", strerror(errno));
+	if (tcgetattr(uart_ports[port].fd, &termios))
 		return -1; /* E_SYSFUNCERR */
-	}
 
 	if (termios.c_cflag & PARENB) {
 		if (termios.c_cflag & CMSPAR)
