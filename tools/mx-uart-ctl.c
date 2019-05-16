@@ -35,11 +35,11 @@ struct action_struct {
 void usage(FILE *fp)
 {
 	fprintf(fp, "Usage:\n");
-	fprintf(fp, "	mx-uart-ctl -p <#port_number> -m <#uart_mode>\n\n");
+	fprintf(fp, "	mx-uart-ctl -p <port_number> [-m <uart_mode>]\n\n");
 	fprintf(fp, "OPTIONS:\n");
-	fprintf(fp, "	-p <#port_number>\n");
-	fprintf(fp, "		Set target port: [0..]\n");
-	fprintf(fp, "	-m <#uart_mode>\n");
+	fprintf(fp, "	-p <port_number>\n");
+	fprintf(fp, "		Set target port.\n");
+	fprintf(fp, "	-m <uart_mode>\n");
 	fprintf(fp, "		Set target port to uart_mode\n");
 	fprintf(fp, "		0 --> set to RS232 mode\n");
 	fprintf(fp, "		1 --> set to RS485-2W mode\n");
