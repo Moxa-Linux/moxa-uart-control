@@ -13,6 +13,7 @@
  *	2017	Elvis CW Yao	<ElvisCW.Yao@moxa.com>
  *	2018	Ken CJ Chou	<KenCJ.Chou@moxa.com>
  *	2019	Remus Wu	<remusty.wu@moxa.com>
+ *	2019	Alif Chen	<alif.chen@moxa.com>
  */
 
 #include <stdio.h>
@@ -229,6 +230,31 @@ static int get_uart_mode_ioctl(int port, int *mode)
 	return 0;
 }
 
+static int get_uart_mode_ioctl_mu860(int port, int *mode)
+{
+	struct serial_struct serial;
+	const char *ttyname;
+	int ret, fd;
+
+	ret = get_uart_port_ttyname(port, &ttyname);
+	if (ret < 0)
+		return ret;
+
+	fd = open(ttyname, O_RDWR|O_NONBLOCK);
+	if (fd < 0)
+		return -1; /* E_SYSFUNCERR */
+
+	serial.reserved_char[0] = 0;
+	if (ioctl(fd, MOXA_GET_OP_MODE, &serial.port) < 0) {
+		close(fd);
+		return -1; /* E_SYSFUNCERR */
+	}
+	close(fd);
+
+	*mode = serial.port;
+	return 0;
+}
+
 static int set_uart_mode_ioctl(int port, int mode)
 {
 	struct serial_struct serial;
@@ -253,6 +279,30 @@ static int set_uart_mode_ioctl(int port, int mode)
 		close(fd);
 		return -1; /* E_SYSFUNCERR */
 	}
+	close(fd);
+
+	return 0;
+}
+
+static int set_uart_mode_ioctl_mu860(int port, int mode)
+{
+	const char *ttyname;
+	int ret, fd;
+
+	ret = get_uart_port_ttyname(port, &ttyname);
+	if (ret < 0)
+		return ret;
+
+	fd = open(ttyname, O_RDWR|O_NONBLOCK);
+	if (fd < 0) {
+		return -1; /* E_SYSFUNCERR */
+	}
+
+	if (ioctl(fd, MOXA_SET_OP_MODE, &mode) < 0) {
+		close(fd);
+		return -1; /* E_SYSFUNCERR */
+	}
+
 	close(fd);
 
 	return 0;
@@ -701,6 +751,8 @@ int mx_uart_set_mode(int port, int mode)
 
 	if (strcmp(method, "IOCTL") == 0)
 		return set_uart_mode_ioctl(port, mode);
+	else if (strcmp(method, "IOCTL_MU860") == 0)
+		return set_uart_mode_ioctl_mu860(port, mode);
 	else if (strcmp(method, "GPIO") == 0)
 		return set_uart_mode_gpio(port, mode);
 	else if (strcmp(method, "GPIO_IOCTL") == 0)
@@ -730,6 +782,8 @@ int mx_uart_get_mode(int port, int *mode)
 
 	if (strcmp(method, "IOCTL") == 0)
 		return get_uart_mode_ioctl(port, mode);
+	else if (strcmp(method, "IOCTL_MU860") == 0)
+		return get_uart_mode_ioctl_mu860(port, mode);
 	else if (strcmp(method, "GPIO") == 0)
 		return get_uart_mode_gpio(port, mode);
 	else if (strcmp(method, "GPIO_IOCTL") == 0)
