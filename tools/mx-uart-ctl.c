@@ -17,8 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "mx_uart.h"
+#include <mx_uart.h>
 
 #define UNSET -1
 
@@ -33,16 +32,14 @@ struct action_struct {
 	int mode;
 };
 
-extern char mx_errmsg[256];
-
 void usage(FILE *fp)
 {
 	fprintf(fp, "Usage:\n");
-	fprintf(fp, "	mx-uart-ctl -p <#port_number> -m <#uart_mode>\n\n");
+	fprintf(fp, "	mx-uart-ctl -p <port_number> [-m <uart_mode>]\n\n");
 	fprintf(fp, "OPTIONS:\n");
-	fprintf(fp, "	-p <#port_number>\n");
-	fprintf(fp, "		Set target port: [0..]\n");
-	fprintf(fp, "	-m <#uart_mode>\n");
+	fprintf(fp, "	-p <port_number>\n");
+	fprintf(fp, "		Set target port.\n");
+	fprintf(fp, "	-m <uart_mode>\n");
 	fprintf(fp, "		Set target port to uart_mode\n");
 	fprintf(fp, "		0 --> set to RS232 mode\n");
 	fprintf(fp, "		1 --> set to RS485-2W mode\n");
@@ -99,19 +96,19 @@ void do_action(struct action_struct action)
 	case GET_MODE:
 		ret = mx_uart_get_mode(action.port, &action.mode);
 		if (ret < 0) {
-			fprintf(stderr, "%s\n", mx_errmsg);
+			fprintf(stderr, "Get UART mode failed\n");
 			exit(1);
 		}
 		break;
 	case SET_MODE:
 		if (mx_uart_set_mode(action.port, action.mode) < 0) {
-			fprintf(stderr, "%s\n", mx_errmsg);
+			fprintf(stderr, "Set UART mode failed\n");
 			exit(1);
 		}
 		printf("Set OK.\n");
 
 		if (mx_uart_get_mode(action.port, &action.mode) < 0) {
-			fprintf(stderr, "%s\n", mx_errmsg);
+			fprintf(stderr, "Get UART mode failed\n");
 			exit(1);
 		}
 		break;
@@ -175,7 +172,6 @@ int main(int argc, char *argv[])
 
 	if (mx_uart_init() < 0) {
 		fprintf(stderr, "Initialize Moxa uart control library failed\n");
-		fprintf(stderr, "%s\n", mx_errmsg);
 		exit(1);
 	}
 
