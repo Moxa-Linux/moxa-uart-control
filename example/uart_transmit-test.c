@@ -32,8 +32,6 @@ struct test_struct {
 	int data_byte;
 };
 
-extern char mx_errmsg[256];
-
 void usage(FILE *fp, const char *ex_name)
 {
 	fprintf(fp, "Usage:\n");
@@ -103,33 +101,29 @@ void open_serial(struct test_struct test)
 
 	ret = mx_uart_open(test.ports[0]);
 	if (ret < 0) {
-		fprintf(stderr, "Open UART port %d failed.\n", test.ports[0]);
-		fprintf(stderr, "Error code: %d\n", ret);
-		fprintf(stderr, "Error message: %s\n", mx_errmsg);
+		fprintf(stderr, "Error: Open UART port %d failed.\n", test.ports[0]);
+		fprintf(stderr, "Return code: %d\n", ret);
 		exit_close_port(1, test.ports);
 	}
 		
 	ret = set_serial(test.ports[0], test.baudrate, 8, 1, 0);
 	if (ret < 0) {
-		fprintf(stderr, "Set UART port %d failed.\n", test.ports[0]);
-		fprintf(stderr, "Error code: %d\n", ret);
-		fprintf(stderr, "Error message: %s\n", mx_errmsg);
+		fprintf(stderr, "Error: Set UART port %d failed.\n", test.ports[0]);
+		fprintf(stderr, "Return code: %d\n", ret);
 		exit_close_port(1, test.ports);
 	}
 
 	ret = mx_uart_open(test.ports[1]);
 	if (ret < 0) {
-		fprintf(stderr, "Open UART port %d failed.\n", test.ports[1]);
-		fprintf(stderr, "Error code: %d\n", ret);
-		fprintf(stderr, "Error message: %s\n", mx_errmsg);
+		fprintf(stderr, "Error: Open UART port %d failed.\n", test.ports[1]);
+		fprintf(stderr, "Return code: %d\n", ret);
 		exit_close_port(1, test.ports);
 	}
 		
 	ret = set_serial(test.ports[1], test.baudrate, 8, 1, 0);
 	if (ret < 0) {
-		fprintf(stderr, "Set UART port %d failed.\n", test.ports[1]);
-		fprintf(stderr, "Error code: %d\n", ret);
-		fprintf(stderr, "Error message: %s\n", mx_errmsg);
+		fprintf(stderr, "Error: Set UART port %d failed.\n", test.ports[1]);
+		fprintf(stderr, "Return code: %d\n", ret);
 		exit_close_port(1, test.ports);
 	}
 }
@@ -197,9 +191,8 @@ void com_test(struct test_struct test)
 		for (i = 0; i < 2; i++) {
 			ret = mx_uart_write(test.ports[i], snd_data, test.data_byte);
 			if (ret < 0) {
-				fprintf(stderr, "Write UART port %d failed.\n", test.ports[i]);
-				fprintf(stderr, "Error code: %d\n", ret);
-				fprintf(stderr, "Error message: %s\n", mx_errmsg);
+				fprintf(stderr, "Error: Write UART port %d failed.\n", test.ports[i]);
+				fprintf(stderr, "Return code: %d\n", ret);
 				exit_close_port(1, test.ports);
 			}
 		}
@@ -216,9 +209,8 @@ void com_test(struct test_struct test)
 			while (rem_bytes) {
 				ret = mx_uart_read(test.ports[i], rcv_data + test.data_byte - rem_bytes, rem_bytes);
 				if (ret < 0) {
-					fprintf(stderr, "Read UART port %d failed.\n", test.ports[i]);
-					fprintf(stderr, "Error code: %d\n", ret);
-					fprintf(stderr, "Error message: %s\n", mx_errmsg);
+					fprintf(stderr, "Error: Read UART port %d failed.\n", test.ports[i]);
+					fprintf(stderr, "Return code: %d\n", ret);
 					exit_close_port(1, test.ports);
 				}
 
@@ -227,14 +219,14 @@ void com_test(struct test_struct test)
 
 			/* Compare data */
 			if (compare(snd_data, rcv_data, test.data_byte)) {
-				printf("Transmission test failed!\n");
+				printf("Transmission test failed.\n");
 				exit_close_port(1, test.ports);
 			}
 		}
 	}
 
 	/* Pass the test */
-	printf("Transmission test passed!\n");
+	printf("Transmission test passed.\n");
 	exit_close_port(0, test.ports);
 }
 
@@ -275,21 +267,23 @@ int main(int argc, char *argv[])
 	test.ports[1] = atoi(argv[optind + 1]);
 
 	if (test.ports[0] == test.ports[1]) {
-		fprintf(stderr, "port1 and port2 are the same.\n");
+		fprintf(stderr, "Error: port1 and port2 are the same.\n");
 		exit(2);
 	}
 
 	ret = mx_uart_init();
 	if (ret < 0) {
-		fprintf(stderr, "Initialize Moxa uart control library failed\n");
-		fprintf(stderr, "Error code: %d\n", ret);
+		fprintf(stderr, "Error: Initialize Moxa uart control library failed\n");
+		fprintf(stderr, "Return code: %d\n", ret);
 		exit(1);
 	}
 
 	printf("Start testing port %d to port %d with:\n", test.ports[0], test.ports[1]);
-	printf("\tdata bytes: %d\n", test.data_byte);
-	printf("\tbaudrate: %d\n", test.baudrate);
-	printf("\ttest count: %d\n", test.count);
+	printf("  Data bytes: %d\n", test.data_byte);
+	printf("  Baudrate: %d\n", test.baudrate);
+	printf("  Test count: %d\n", test.count);
+	printf("Please make sure they are connected to each other.\n");
+	printf("========================================\n");
 
 	com_test(test);
 }

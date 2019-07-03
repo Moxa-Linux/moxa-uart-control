@@ -1,63 +1,57 @@
-## Config example
+# moxa-uart-control
 
-### Path 
-```
-/etc/moxa-configs/moxa-uart-control.json
-```
+`moxa-uart-control` is a C library for getting and setting UART ports mode.
 
-### Description
+## Build
 
-* `CONFIG_VERSION`: The version of config file
-* `METHOD`: The method to manipulate UART, including GPIO, IOCTL, and GPIO_IOCTL
-* `NUM_OF_UART_PORTS`: The number of UART ports on this device
-* `UART_PORTS`: The corresponding TTY name for each UART port
-* `GPIO_PINS_PER_UART_PORT`: The number of GPIO pins used by one UART port
-* `GPIO_NUMS_OF_UART_PORTS`: The GPIO pin numbers used by each UART port
+This project use autotools as buildsystem. You can build this project by the following commands:
 
-### Example1: UC-8580
+* If the build target architecture is x86_64
 
-```
-{
-	"CONFIG_VERSION": "1.1.0",
+	```
+	# ./autogen.sh --host=x86_64-linux-gnu --includedir=/usr/include/moxa --libdir=/usr/lib/x86_64-linux-gnu --sbindir=/sbin
+	# make
+	# make install
+	```
+* If the build target architecture is armhf
 
-	"METHOD": "IOCTL",
+	```
+	# ./autogen.sh --host=arm-linux-gnueabihf --includedir=/usr/include/moxa --libdir=/usr/lib/arm-linux-gnueabihf --sbindir=/sbin
+	# make
+	# make install
+	```
 
-	"NUM_OF_UART_PORTS": 2,
-	"UART_PORTS": [
-		"/dev/ttyM0",
-		"/dev/ttyM1"
-	]
-}
-```
+The autogen script will execute ./configure and pass all the command-line
+arguments to it.
 
-### Example2: UC-5111-LX
+## Usage of mx-uart-ctl
 
 ```
-{
-	"CONFIG_VERSION":"1.1.1",
+Usage:
+	mx-dio-ctl -g <DOUT/DIN>|-s <state> -n <port>
 
-	"METHOD": "GPIO",
+OPTIONS:
+	-g <DOUT/DIN>
+		Get target to DOUT or DIN port
+		0 --> DOUT
+		1 --> DIN
+	-s <state>
+		Set state for target DOUT port
+		0 --> LOW
+		1 --> HIGH
+	-n <port>
+		Set target port number
 
-	"NUM_OF_UART_PORTS": 4,
-	"UART_PORTS": [
-		"/dev/ttyM0",
-		"/dev/ttyM1",
-		"/dev/ttyM2",
-		"/dev/ttyM3"
-	],
+Example:
+	Get value from DIN port 1
+	# mx-dio-ctl -g 1 -n 1
 
-	"GPIO_PINS_PER_UART_PORT": 4,
-	"GPIO_NUMS_OF_UART_PORTS": [
-		[496, 497, 498, 499],
-		[500, 501, 502, 503],
-		[504, 505, 506, 507],
-		[508, 509, 510, 511]
-	],
-	"NUM_OF_UART_MODE": 3,
-	"UART_MODES": [
-		[1, 1, 0, 0],
-		[0, 0, 0, 1],
-		[0, 0, 1, 0]
-	]
-}
+	Set DOUT port 2 value to LOW
+	# mx-dio-ctl -s 0 -n 2
 ```
+
+## Documentation
+
+[Config Example](/Config_Example.md)
+
+[API Reference](/API_References.md)
