@@ -17,10 +17,10 @@ develop_build:
     script:
         - dpkg --add-architecture armhf
         - dpkg --add-architecture arm64
-        - echo "deb http://10.144.54.241/mirror-stretch_20190701 stretch main contrib non-free" > /etc/apt/sources.list
-        - curl -fsSL http://10.144.54.241/mxcore_test_apt.gpg | apt-key add -
-        - echo "deb http://10.144.5.245:8080/mil-develop stretch main" >> /etc/apt/sources.list
-        - curl -fsSL http://10.144.5.245:8080/mil_internal_apt.gpg | apt-key add -
+        - echo "deb http://mil-internal-apt:8080/mirror-debian_20190701 stretch main contrib non-free" > /etc/apt/sources.list
+        - curl -fsSL http://mil-internal-apt:8080/mil_internal_apt.gpg | apt-key add -
+        - echo "deb http://mil-internal-apt:8080/mil-develop stretch main" >> /etc/apt/sources.list
+        - curl -fsSL http://mil-internal-apt:8080/mil_internal_apt.gpg | apt-key add -
         - apt-get update
         - apt-get install crossbuild-essential-armhf crossbuild-essential-arm64 libmoxa-gpio-control-dev:armhf libjson-c-dev:armhf libmoxa-gpio-control-dev:arm64 libjson-c-dev:arm64 -y --allow-unauthenticated
         - dpkg-buildpackage -us -uc -b -aarmhf
@@ -41,10 +41,10 @@ release_build:
     script:
         - dpkg --add-architecture armhf
         - dpkg --add-architecture arm64
-        - echo "deb http://10.144.54.241/mirror-stretch_20190701 stretch main contrib non-free" > /etc/apt/sources.list
-        - curl -fsSL http://10.144.54.241/mxcore_test_apt.gpg | apt-key add -
-        - echo "deb http://10.144.5.245:8080/mil-release stretch main" >> /etc/apt/sources.list
-        - curl -fsSL http://10.144.5.245:8080/mil_internal_apt.gpg | apt-key add -
+        - echo "deb http://mil-internal-apt:8080/mirror-debian_20190701 stretch main contrib non-free" > /etc/apt/sources.list
+        - curl -fsSL http://mil-internal-apt:8080/mil_internal_apt.gpg | apt-key add -
+        - echo "deb http://mil-internal-apt:8080/mil-release stretch main" >> /etc/apt/sources.list
+        - curl -fsSL http://mil-internal-apt:8080/mil_internal_apt.gpg | apt-key add -
         - apt-get update
         - apt-get install crossbuild-essential-armhf crossbuild-essential-arm64 libmoxa-gpio-control-dev:armhf libjson-c-dev:armhf libmoxa-gpio-control-dev:arm64 libjson-c-dev:arm64 -y --allow-unauthenticated
         - dpkg-buildpackage -us -uc -b -aarmhf
@@ -64,6 +64,7 @@ prepare_develop_debs:
         - stretch-develop
     dependencies:
         - develop_build
+    when: manual
     script:
         - mkdir -p /cache/stretch/develop/
         - cp *.deb /cache/stretch/develop/
@@ -78,6 +79,7 @@ prepare_release_debs:
         - stretch
     dependencies:
         - release_build
+    when: manual
     script:
         - mkdir -p /cache/stretch/release/
         - cp *.deb /cache/stretch/release/
