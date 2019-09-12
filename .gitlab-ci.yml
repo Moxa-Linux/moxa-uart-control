@@ -22,7 +22,10 @@ develop_build:
         - echo "deb http://mil-internal-apt:8080/mil-develop stretch main" >> /etc/apt/sources.list
         - curl -fsSL http://mil-internal-apt:8080/mil_internal_apt.gpg | apt-key add -
         - apt-get update
-        - apt-get install crossbuild-essential-armhf crossbuild-essential-arm64 libmoxa-gpio-control-dev:armhf libjson-c-dev:armhf libmoxa-gpio-control-dev:arm64 libjson-c-dev:arm64 build-essential:amd64 libmoxa-gpio-control-dev:amd64 libjson-c-dev:amd64 -y --allow-unauthenticated
+        - apt-get install --allow-unauthenticated -y
+          crossbuild-essential-armhf libmoxa-gpio-control-dev:armhf libjson-c-dev:armhf
+          crossbuild-essential-arm64 libmoxa-gpio-control-dev:arm64 libjson-c-dev:arm64
+          build-essential:amd64 libmoxa-gpio-control-dev:amd64 libjson-c-dev:amd64
         - dpkg-buildpackage -us -uc -b -aarmhf
         - dpkg-buildpackage -us -uc -b -aarm64
         - dpkg-buildpackage -us -uc -b -aamd64
@@ -47,7 +50,10 @@ release_build:
         - echo "deb http://mil-internal-apt:8080/mil-release stretch main" >> /etc/apt/sources.list
         - curl -fsSL http://mil-internal-apt:8080/mil_internal_apt.gpg | apt-key add -
         - apt-get update
-        - apt-get install crossbuild-essential-armhf crossbuild-essential-arm64 libmoxa-gpio-control-dev:armhf libjson-c-dev:armhf libmoxa-gpio-control-dev:arm64 libjson-c-dev:arm64 build-essential:amd64 libmoxa-gpio-control-dev:amd64 libjson-c-dev:amd64 -y --allow-unauthenticated
+        - apt-get install --allow-unauthenticated -y
+          crossbuild-essential-armhf libmoxa-gpio-control-dev:armhf libjson-c-dev:armhf
+          crossbuild-essential-arm64 libmoxa-gpio-control-dev:arm64 libjson-c-dev:arm64
+          build-essential:amd64 libmoxa-gpio-control-dev:amd64 libjson-c-dev:amd64
         - dpkg-buildpackage -us -uc -b -aarmhf
         - dpkg-buildpackage -us -uc -b -aarm64
         - dpkg-buildpackage -us -uc -b -aamd64
