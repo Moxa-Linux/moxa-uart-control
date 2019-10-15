@@ -28,26 +28,23 @@ arguments to it.
 
 ```
 Usage:
-	mx-dio-ctl -g <DOUT/DIN>|-s <state> -n <port>
+	mx-uart-ctl -p <port_number> [-m <uart_mode>]
 
 OPTIONS:
-	-g <DOUT/DIN>
-		Get target to DOUT or DIN port
-		0 --> DOUT
-		1 --> DIN
-	-s <state>
-		Set state for target DOUT port
-		0 --> LOW
-		1 --> HIGH
-	-n <port>
-		Set target port number
+	-p <port_number>
+		Set target port.
+	-m <uart_mode>
+		Set target port to uart_mode
+		0 --> set to RS232 mode
+		1 --> set to RS485-2W mode
+		2 --> set to RS422/RS485-4W mode
 
 Example:
-	Get value from DIN port 1
-	# mx-dio-ctl -g 1 -n 1
+	Get mode from port 0
+	# mx-uart-ctl -p 0
 
-	Set DOUT port 2 value to LOW
-	# mx-dio-ctl -s 0 -n 2
+	Set port 1 to mode RS232
+	# mx-uart-ctl -p 1 -m 0
 ```
 
 ## Documentation
