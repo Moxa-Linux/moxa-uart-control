@@ -36,6 +36,7 @@
 #define CMSPAR 010000000000
 #define MAX_FILEPATH_LEN 256	/* reserved length for file path */
 #define MAX_BUFFER_LEN 32	/* reserved length for buffer */
+#define MAX_JSON_KEY_LEN 32	/* reserved length for json key */
 
 struct uart_port_struct {
 	int fd;
@@ -301,29 +302,40 @@ static int init_gpio(int port)
 	return 0;
 }
 
-static int get_uart_modes(int mode, int **uart_modes_values)
+static int get_uart_modes(int port, int mode, int **uart_modes_values)
 {
-	struct array_list *uart_modes, *uart_mode_pins;
-	int num_of_gpio_pins, i;
+	struct array_list *uart_modes, *uart_mode_pins, *uart_ports_group;
+	int num_of_gpio_pins, i, num_of_uart_ports, cur_port_group;
 	int *tmp_uart_modes_values;
 	const char *method;
-
-	if (obj_get_arr(config, "UART_MODES", &uart_modes) < 0) {
-		*uart_modes_values = (int *) def_uart_modes_values[mode];
-		return 0;
-	}
+	char target_uart_mode_key[MAX_JSON_KEY_LEN];
 
 	if (obj_get_str(config, "METHOD", &method) < 0)
 		return -5; /* E_CONFERR */
 
 	if (!strcmp(method, "GPIO") || !strcmp(method, "GPIO_IOCTL")) {
+		sprintf(target_uart_mode_key, "UART_MODES");
 		if (obj_get_int(config, "GPIO_PINS_PER_UART_PORT", &num_of_gpio_pins) < 0)
 			return -5; /* E_CONFERR */
 	} else if (!strcmp(method, "FILEPATH")) {
+		if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
+			return -5; /* E_CONFERR */
+		if (obj_get_arr(config, "UART_PORTS_GROUP", &uart_ports_group) < 0)
+			return -5; /* E_CONFERR */
 		if (obj_get_int(config, "FILEPATH_PER_UART_PORT", &num_of_gpio_pins) < 0)
 			return -5; /* E_CONFERR */
+
+		if (arr_get_int(uart_ports_group, port, &cur_port_group) < 0)
+			return -5; /* E_CONFERR */
+
+		sprintf(target_uart_mode_key, "UART_MODES_GROUP%d", cur_port_group);
 	} else {
 		return -5; /* E_CONFERR */
+	}
+
+	if (obj_get_arr(config, target_uart_mode_key, &uart_modes) < 0) {
+		*uart_modes_values = (int *) def_uart_modes_values[mode];
+		return 0;
 	}
 
 	tmp_uart_modes_values = (int *) malloc(num_of_gpio_pins * sizeof(int));
@@ -372,7 +384,7 @@ static int set_uart_mode_gpio(int port, int mode)
 	if (obj_get_int(config, "GPIO_PINS_PER_UART_PORT", &num_of_gpio_pins) < 0)
 		return -5; /* E_CONFERR */
 
-	ret = get_uart_modes(mode, &uart_modes_values);
+	ret = get_uart_modes(port, mode, &uart_modes_values);
 	if (ret < 0)
 		return ret;
 
@@ -426,7 +438,7 @@ static int get_uart_mode_gpio(int port, int *mode)
 
 	/* compare to uart mode */
 	for (i = 0; i < 3; i++) {
-		ret = get_uart_modes(i, &uart_modes_values);
+		ret = get_uart_modes(port, i, &uart_modes_values);
 		if (ret < 0)
 			return ret;
 
@@ -561,7 +573,7 @@ static int set_uart_mode_filepath(int port, int mode)
 	if (obj_get_int(config, "FILEPATH_PER_UART_PORT", &num_of_filepath) < 0)
 		return -5; /* E_CONFERR */
 
-	ret = get_uart_modes(mode, &uart_modes_values);
+	ret = get_uart_modes(port, mode, &uart_modes_values);
 	if (ret < 0)
 		return ret;
 
@@ -613,7 +625,7 @@ static int get_uart_mode_filepath(int port, int *mode)
 
 	/* compare to uart mode */
 	for (i = 0; i < 3; i++) {
-		ret = get_uart_modes(i, &uart_modes_values);
+		ret = get_uart_modes(port, i, &uart_modes_values);
 		if (ret < 0)
 			return ret;
 
