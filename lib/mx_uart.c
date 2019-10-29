@@ -12,6 +12,7 @@
  *	2008	CF Lin
  *	2017	Elvis CW Yao	<ElvisCW.Yao@moxa.com>
  *	2018	Ken CJ Chou	<KenCJ.Chou@moxa.com>
+ *	2019	Remus Wu	<remusty.wu@moxa.com>
  */
 
 #include <stdio.h>
@@ -305,14 +306,25 @@ static int get_uart_modes(int mode, int **uart_modes_values)
 	struct array_list *uart_modes, *uart_mode_pins;
 	int num_of_gpio_pins, i;
 	int *tmp_uart_modes_values;
+	const char *method;
 
 	if (obj_get_arr(config, "UART_MODES", &uart_modes) < 0) {
 		*uart_modes_values = (int *) def_uart_modes_values[mode];
 		return 0;
 	}
 
-	if (obj_get_int(config, "GPIO_PINS_PER_UART_PORT", &num_of_gpio_pins) < 0)
+	if (obj_get_str(config, "METHOD", &method) < 0)
 		return -5; /* E_CONFERR */
+
+	if (!strcmp(method, "GPIO") || !strcmp(method, "GPIO_IOCTL")) {
+		if (obj_get_int(config, "GPIO_PINS_PER_UART_PORT", &num_of_gpio_pins) < 0)
+			return -5; /* E_CONFERR */
+	} else if (!strcmp(method, "FILEPATH")) {
+		if (obj_get_int(config, "FILEPATH_PER_UART_PORT", &num_of_gpio_pins) < 0)
+			return -5; /* E_CONFERR */
+	} else {
+		return -5; /* E_CONFERR */
+	}
 
 	tmp_uart_modes_values = (int *) malloc(num_of_gpio_pins * sizeof(int));
 	if (tmp_uart_modes_values == NULL)
@@ -462,6 +474,161 @@ static int set_uart_mode_gpio_ioctl(int port, int mode)
 	return get_uart_mode_gpio_ioctl(port, &mode);
 }
 
+static int read_file(char *filepath, char *data)
+{
+	int fd;
+
+	fd = open(filepath, O_RDONLY);
+	if (fd < 0)
+		return -1; /* E_SYSFUNCERR */
+
+	if (read(fd, data, sizeof(data)) < 0) {
+		close(fd);
+		return -1; /* E_SYSFUNCERR */
+	}
+	close(fd);
+	return 0;
+}
+
+static int write_file(char *filepath, const char *data)
+{
+	int fd;
+
+	fd = open(filepath, O_WRONLY);
+	if (fd < 0)
+		return -1; /* E_SYSFUNCERR */
+
+	if (write(fd, data, strlen(data)) < 0) {
+		close(fd);
+		return -1; /* E_SYSFUNCERR */
+	}
+	close(fd);
+	return 0;
+}
+
+static int mx_filepath_get_value(char *filepath, int *value)
+{
+	char buffer[MAX_FILEPATH_LEN];
+	int ret;
+
+	ret = access(filepath, F_OK);
+	if (ret < 0)
+		return -1; /* E_SYSFUNCERR */
+
+	ret = read_file(filepath, buffer);
+	if (ret < 0)
+		return ret;
+
+	if (!strncmp(buffer, "0", 1))
+		*value = 0;
+	else if (!strncmp(buffer, "1", 1))
+		*value = 1;
+	else
+		return -22; /* E_GPIO_UNKVAL */
+
+	return 0;
+}
+
+static int mx_filepath_set_value(char *filepath, int value)
+{
+	int ret;
+
+	ret = access(filepath, F_OK);
+	if (ret < 0)
+		return -1; /* E_SYSFUNCERR */
+
+	if (value == 0)
+		return write_file(filepath, "0");
+	else if (value == 1)
+		return write_file(filepath, "1");
+	else
+		return -2; /* E_INVAL */
+}
+
+static int set_uart_mode_filepath(int port, int mode)
+{
+	struct array_list *filepath_of_uart_ports, *filepathes;
+	int ret, num_of_filepath, i;
+	const char *filepath;
+	int *uart_modes_values;
+
+	if (obj_get_arr(config, "FILEPATH_OF_UART_PORTS", &filepath_of_uart_ports) < 0)
+		return -5; /* E_CONFERR */
+
+	if (arr_get_arr(filepath_of_uart_ports, port, &filepathes) < 0)
+		return -5; /* E_CONFERR */
+
+	if (obj_get_int(config, "FILEPATH_PER_UART_PORT", &num_of_filepath) < 0)
+		return -5; /* E_CONFERR */
+
+	ret = get_uart_modes(mode, &uart_modes_values);
+	if (ret < 0)
+		return ret;
+
+	for (i = 0; i < num_of_filepath; i++) {
+		if (arr_get_str(filepathes, i, &filepath) < 0)
+			return -5; /* E_CONFERR */
+
+		ret = mx_filepath_set_value((char *)filepath, uart_modes_values[i]);
+		if (ret < 0)
+			return ret;
+	}
+	if (uart_modes_values != def_uart_modes_values[mode])
+		free(uart_modes_values);
+
+	return 0;
+}
+
+static int get_uart_mode_filepath(int port, int *mode)
+{
+	struct array_list *filepath_of_uart_ports, *filepathes;
+	int ret, num_of_filepath, filepath_value, i;
+	const char *filepath;
+	int *filepath_values;
+	int *uart_modes_values;
+
+	if (obj_get_arr(config, "FILEPATH_OF_UART_PORTS", &filepath_of_uart_ports) < 0)
+		return -5; /* E_CONFERR */
+
+	if (arr_get_arr(filepath_of_uart_ports, port, &filepathes) < 0)
+		return -5; /* E_CONFERR */
+
+	if (obj_get_int(config, "FILEPATH_PER_UART_PORT", &num_of_filepath) < 0)
+		return -5; /* E_CONFERR */
+
+	filepath_values = (int *) malloc(num_of_filepath * sizeof(int));
+	if (filepath_values == NULL)
+		return -1; /* E_SYSFUNCERR */
+
+	for (i = 0; i < num_of_filepath; i++) {
+		if (arr_get_str(filepathes, i, &filepath) < 0)
+			return -5; /* E_CONFERR */
+
+		ret = mx_filepath_get_value((char *)filepath, &filepath_value);
+		if (ret < 0)
+			return ret;
+
+		filepath_values[i] = filepath_value;
+	}
+
+	/* compare to uart mode */
+	for (i = 0; i < 3; i++) {
+		ret = get_uart_modes(i, &uart_modes_values);
+		if (ret < 0)
+			return ret;
+
+		if (!arrncmp(num_of_filepath, filepath_values, uart_modes_values)) {
+			*mode = i;
+			return 0;
+		}
+
+		if (uart_modes_values != def_uart_modes_values[i])
+			free(uart_modes_values);
+	}
+
+	return -52; /* E_UART_UNKMODE */
+}
+
 /*
  * APIs
  */
@@ -528,6 +695,8 @@ int mx_uart_set_mode(int port, int mode)
 		return set_uart_mode_gpio(port, mode);
 	else if (strcmp(method, "GPIO_IOCTL") == 0)
 		return set_uart_mode_gpio_ioctl(port, mode);
+	else if (strcmp(method, "FILEPATH") == 0)
+		return set_uart_mode_filepath(port, mode);
 
 	return -5; /* E_CONFERR */
 }
@@ -555,6 +724,8 @@ int mx_uart_get_mode(int port, int *mode)
 		return get_uart_mode_gpio(port, mode);
 	else if (strcmp(method, "GPIO_IOCTL") == 0)
 		return get_uart_mode_gpio_ioctl(port, mode);
+	else if (strcmp(method, "FILEPATH") == 0)
+		return get_uart_mode_filepath(port, mode);
 
 	return -5; /* E_CONFERR */
 }

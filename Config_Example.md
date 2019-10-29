@@ -61,3 +61,38 @@
 	]
 }
 ```
+
+### Example3: MC-1200
+
+```
+{
+    "CONFIG_VERSION": "1.1.2",
+    "METHOD": "FILEPATH",
+    "NUM_OF_UART_PORTS": 2,
+    "UART_PORTS": [
+            "/dev/ttyM0",
+            "/dev/ttyM1"
+    ],
+    "FILEPATH_PER_UART_PORT": 4,
+    "FILEPATH_OF_UART_PORTS": [
+        [
+            "/sys/class/gpio/gpio449/value",
+            "/sys/class/gpio/gpio450/value",
+            "/sys/class/gpio/gpio451/value",
+            "/sys/class/misc/it87_serial/serial1/serial1_rs485"
+        ],
+        [
+            "/sys/class/gpio/gpio452/value",
+            "/sys/class/gpio/gpio453/value",
+            "/sys/class/gpio/gpio454/value",
+            "/sys/class/misc/it87_serial/serial2/serial2_rs485"
+        ]
+    ],
+    "NUM_OF_UART_MODE": 3,
+    "UART_MODES": [
+            [0, 0, 1, 0],
+            [1, 0, 0, 1],
+            [0, 1, 0, 1]
+    ]
+}
+```
