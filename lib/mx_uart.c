@@ -305,7 +305,7 @@ static int init_gpio(int port)
 static int get_uart_modes(int port, int mode, int **uart_modes_values)
 {
 	struct array_list *uart_modes, *uart_mode_pins, *uart_ports_group;
-	int num_of_gpio_pins, i, num_of_uart_ports, cur_port_group;
+	int num_of_gpio_pins, i, cur_port_group;
 	int *tmp_uart_modes_values;
 	const char *method;
 	char target_uart_mode_key[MAX_JSON_KEY_LEN];
@@ -318,8 +318,6 @@ static int get_uart_modes(int port, int mode, int **uart_modes_values)
 		if (obj_get_int(config, "GPIO_PINS_PER_UART_PORT", &num_of_gpio_pins) < 0)
 			return -5; /* E_CONFERR */
 	} else if (!strcmp(method, "FILEPATH")) {
-		if (obj_get_int(config, "NUM_OF_UART_PORTS", &num_of_uart_ports) < 0)
-			return -5; /* E_CONFERR */
 		if (obj_get_arr(config, "UART_PORTS_GROUP", &uart_ports_group) < 0)
 			return -5; /* E_CONFERR */
 		if (obj_get_int(config, "FILEPATH_PER_UART_PORT", &num_of_gpio_pins) < 0)
