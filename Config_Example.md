@@ -61,3 +61,152 @@
 	]
 }
 ```
+
+### Example3: MC-1200
+
+```
+{
+    "CONFIG_VERSION": "1.1.2",
+    "METHOD": "FILEPATH",
+    "NUM_OF_UART_PORTS": 2,
+    "UART_PORTS": [
+            "/dev/ttyM0",
+            "/dev/ttyM1"
+    ],
+    "UART_PORTS_GROUP": [
+            "1",
+            "1"
+    ],
+    "FILEPATH_PER_UART_PORT": 4,
+    "FILEPATH_OF_UART_PORTS": [
+        [
+            "/sys/class/gpio/gpio449/value",
+            "/sys/class/gpio/gpio450/value",
+            "/sys/class/gpio/gpio451/value",
+            "/sys/class/misc/it87_serial/serial1/serial1_rs485"
+        ],
+        [
+            "/sys/class/gpio/gpio452/value",
+            "/sys/class/gpio/gpio453/value",
+            "/sys/class/gpio/gpio454/value",
+            "/sys/class/misc/it87_serial/serial2/serial2_rs485"
+        ]
+    ],
+    "NUM_OF_UART_MODE": 3,
+    "UART_MODES_GROUP1": [
+            [0, 0, 1, 0],
+            [1, 0, 0, 1],
+            [0, 1, 0, 1]
+    ]
+}
+```
+
+### Example3: DA-820C
+- On board it8786: /dev/ttyM0 ~ /dev/ttyM1
+- Expansion UART board: /dev/ttyM2 ~ /dev/ttyM9
+
+```
+{
+    "CONFIG_VERSION": "1.1.2",
+    "METHOD": "FILEPATH",
+    "NUM_OF_UART_PORTS": 10,
+    "UART_PORTS": [
+            "/dev/ttyM0",
+            "/dev/ttyM1",
+            "/dev/ttyM2",
+            "/dev/ttyM3",
+            "/dev/ttyM4",
+            "/dev/ttyM5",
+            "/dev/ttyM6",
+            "/dev/ttyM7",
+            "/dev/ttyM8",
+            "/dev/ttyM9"
+    ],
+    "UART_PORTS_GROUP": [
+            "1",
+            "1",
+            "2",
+            "2",
+            "2",
+            "2",
+            "2",
+            "2",
+            "2",
+            "2"
+    ],
+    "FILEPATH_PER_UART_PORT": 4,
+    "FILEPATH_OF_UART_PORTS": [
+        [
+            "/sys/class/gpio/gpio451/value",
+            "/sys/class/gpio/gpio449/value",
+            "/sys/class/gpio/gpio450/value",
+            "/sys/class/misc/it87_serial/serial1/serial1_rs485"
+        ],
+        [
+            "/sys/class/gpio/gpio454/value",
+            "/sys/class/gpio/gpio452/value",
+            "/sys/class/gpio/gpio453/value",
+            "/sys/class/misc/it87_serial/serial2/serial2_rs485"
+        ],
+        [
+            "/sys/class/gpio/gpio432/value",
+            "/sys/class/gpio/gpio433/value",
+            "/sys/class/gpio/gpio434/value",
+            "/sys/class/gpio/gpio435/value"
+        ],
+        [
+            "/sys/class/gpio/gpio436/value",
+            "/sys/class/gpio/gpio437/value",
+            "/sys/class/gpio/gpio438/value",
+            "/sys/class/gpio/gpio439/value"
+        ],
+        [
+            "/sys/class/gpio/gpio440/value",
+            "/sys/class/gpio/gpio441/value",
+            "/sys/class/gpio/gpio442/value",
+            "/sys/class/gpio/gpio443/value"
+        ],
+        [
+            "/sys/class/gpio/gpio444/value",
+            "/sys/class/gpio/gpio445/value",
+            "/sys/class/gpio/gpio446/value",
+            "/sys/class/gpio/gpio447/value"
+        ],
+        [
+            "/sys/class/gpio/gpio416/value",
+            "/sys/class/gpio/gpio417/value",
+            "/sys/class/gpio/gpio418/value",
+            "/sys/class/gpio/gpio419/value"
+        ],
+        [
+            "/sys/class/gpio/gpio420/value",
+            "/sys/class/gpio/gpio421/value",
+            "/sys/class/gpio/gpio422/value",
+            "/sys/class/gpio/gpio423/value"
+        ],
+        [
+            "/sys/class/gpio/gpio424/value",
+            "/sys/class/gpio/gpio425/value",
+            "/sys/class/gpio/gpio426/value",
+            "/sys/class/gpio/gpio427/value"
+        ],
+        [
+            "/sys/class/gpio/gpio428/value",
+            "/sys/class/gpio/gpio429/value",
+            "/sys/class/gpio/gpio430/value",
+            "/sys/class/gpio/gpio431/value"
+        ]
+    ],
+    "NUM_OF_UART_MODE": 3,
+    "UART_MODES_GROUP1": [
+            [1, 0, 0, 0],
+            [0, 1, 0, 1],
+            [0, 0, 1, 1]
+    ],
+    "UART_MODES_GROUP2": [
+            [1, 1, 0, 0],
+            [0, 0, 0, 1],
+            [0, 0, 1, 0]
+    ]
+}
+```
