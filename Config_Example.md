@@ -101,7 +101,7 @@
 }
 ```
 
-### Example3: DA-820C
+### Example4: DA-820C
 - On board it8786: /dev/ttyM0 ~ /dev/ttyM1
 - Expansion UART board: /dev/ttyM2 ~ /dev/ttyM9
 
@@ -208,5 +208,27 @@
             [0, 0, 0, 1],
             [0, 0, 1, 0]
     ]
+}
+```
+
+### Example5: UC-8410A
+
+```
+{
+	"CONFIG_VERSION":"1.1.3",
+	
+	"METHOD": "IOCTL_MU860",
+	
+	"NUM_OF_UART_PORTS": 8,
+	"UART_PORTS": [
+		"/dev/ttyM0",
+		"/dev/ttyM1",
+		"/dev/ttyM2",
+		"/dev/ttyM3",
+		"/dev/ttyM4",
+		"/dev/ttyM5",
+		"/dev/ttyM6",
+		"/dev/ttyM7"
+	]
 }
 ```
