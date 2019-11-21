@@ -1,7 +1,7 @@
 # moxa-uart-control version
 m4_define([version_major], [1])
 m4_define([version_minor], [1])
-m4_define([version_revision], [4])
+m4_define([version_revision], [6])
 m4_define([version_code], [version_major.version_minor.version_revision])
 
 # autoconf, automake, libtool initial
